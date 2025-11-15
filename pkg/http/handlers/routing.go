@@ -2,14 +2,11 @@ package handlers
 
 import (
 	pkgMiddleware "avito-task/pkg/http/middleware"
+	"net/http"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	httpSwagger "github.com/swaggo/http-swagger"
-)
-
-const (
-	SwaggerPath = "/swagger/*"
 )
 
 type RouterOption func(r chi.Router)
@@ -34,8 +31,18 @@ func WithRecovery() RouterOption {
 	}
 }
 
-func WithSwagger() RouterOption {
+func WithSwagger(path string) RouterOption {
 	return func(r chi.Router) {
-		r.Get(SwaggerPath, httpSwagger.WrapHandler)
+		r.Get(path + "/*", httpSwagger.Handler(httpSwagger.URL("docs/openapi.yaml")))
+	}
+}
+
+func WithHealthHandler() RouterOption {
+	return func(r chi.Router) {
+		r.Mount("/health", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+			w.Header().Set("Content-Type", "text/plain")
+			_, _ = w.Write([]byte("OK"))
+		}))
 	}
 }
