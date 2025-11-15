@@ -1,0 +1,35 @@
+services:
+  avito-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8080:8080
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: curl --fail -X GET http://avito-app:8080/api/health || exit 1
+      interval: 15s
+      timeout: 3s
+      start_period: 3s
+      retries: 1
+
+  postgres:
+    image: postgres:latest
+    environment:
+      - POSTGRES_DB=avito_db
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=adminpass
+      - PGDATA=/etc/.pgdata
+    volumes:
+      - /home/${USER}/.pgdata:/etc/.pgdata
+      - ./migrations/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U admin -d avito_db" ]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+    tty: true
+    stdin_open: true

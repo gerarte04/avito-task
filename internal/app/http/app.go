@@ -21,6 +21,7 @@ type App struct {
 func New(
 	httpCfg pkgConfig.HTTPConfig,
 	pathCfg config.PathConfig,
+	svcCfg config.ServiceConfig,
 	teamSvc usecases.TeamService,
 	userSvc usecases.UserService,
 	prSvc usecases.PullRequestService,
@@ -33,7 +34,8 @@ func New(
 	handlers.RouteHandlers(router, pathCfg.APIPath,
 		handlers.WithLogger(),
 		handlers.WithRecovery(),
-		handlers.WithSwagger("/swagger"),
+		handlers.WithSwagger(pathCfg.Swagger, svcCfg.SwaggerFsRoot),
+		handlers.WithHealthHandler(),
 		teamHandler.WithTeamHandlers(),
 		userHandler.WithUserHandlers(),
 		prHandler.WithPRHandlers(),

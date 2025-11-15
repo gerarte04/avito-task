@@ -43,6 +43,7 @@ func main() {
 	httpApp := httpapp.New(
 		cfg.HTTPCfg,
 		cfg.PathCfg,
+		cfg.SvcCfg,
 		teamSvc,
 		userSvc,
 		prSvc,

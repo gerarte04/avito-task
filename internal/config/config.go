@@ -17,10 +17,17 @@ type PathConfig struct {
 	CreatePR   string `yaml:"create_pr" env-required:"true"`
 	MergePR    string `yaml:"merge_pr" env-required:"true"`
 	ReassignPR string `yaml:"reassign_pr" env-required:"true"`
+
+	Swagger string `yaml:"swagger" env-required:"true"`
+}
+
+type ServiceConfig struct {
+	SwaggerFsRoot string `yaml:"swagger_fs_root" env-required:"true"`
 }
 
 type Config struct {
 	HTTPCfg     pkgConfig.HTTPConfig `yaml:"http"`
 	PostgresCfg postgres.Config      `yaml:"postgres"`
 	PathCfg     PathConfig           `yaml:"paths"`
+	SvcCfg      ServiceConfig        `yaml:"service"`
 }

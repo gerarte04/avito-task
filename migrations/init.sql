@@ -5,7 +5,7 @@ CREATE TABLE teams (
 CREATE TABLE users (
     id          varchar(100)    PRIMARY KEY,
     name        varchar(100)    NOT NULL,
-    team_name   varchar(100)    REFERENCES teams(name) ON DELETE SET NULL ON UPDATE CASCADE
+    team_name   varchar(100)    REFERENCES teams(name) ON DELETE SET NULL ON UPDATE CASCADE,
     is_active   bool            NOT NULL
 );
 

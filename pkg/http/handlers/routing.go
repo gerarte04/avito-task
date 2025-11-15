@@ -6,7 +6,6 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 type RouterOption func(r chi.Router)
@@ -31,9 +30,11 @@ func WithRecovery() RouterOption {
 	}
 }
 
-func WithSwagger(path string) RouterOption {
+func WithSwagger(path string, fsRoot string) RouterOption {
+	srv := http.FileServer(http.Dir(fsRoot))
+
 	return func(r chi.Router) {
-		r.Get(path + "/*", httpSwagger.Handler(httpSwagger.URL("docs/openapi.yaml")))
+		r.Handle(path + "/*", http.StripPrefix(path + "/", srv))
 	}
 }
 

@@ -1,0 +1,26 @@
+http:
+  address: 0.0.0.0:8080
+  read_timeout: 5s
+  write_timeout: 5s
+  idle_timeout: 30s
+
+postgres:
+  host: postgres
+  port: 5432
+  db: avito_db
+  user: admin
+  password: adminpass
+
+service:
+  swagger_fs_root: /app/docs/swagger-ui-dist
+
+paths:
+  api: /
+  add_team: /team/add
+  get_team: /team/get
+  set_is_active_user: /users/setIsActive
+  get_review_user: /users/getReview
+  create_pr: /pullRequest/create
+  merge_pr: /pullRequest/merge
+  reassign_pr: /pullRequest/reassign
+  swagger: /swagger
