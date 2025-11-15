@@ -1,0 +1,32 @@
+name: docker-compose CI (integrational tests)
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.25'
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Install Make
+      run: sudo apt-get install make
+
+    - name: Build and Test
+      run: make launch_services_with_tests
+
+    - name: Shut Down Docker Compose
+      if: always()
+      run: make stop_services

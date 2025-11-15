@@ -6,3 +6,4 @@
 4) редис кэш
 5) в getReview не описано что нужно 404 если нет userid
 6) про поле createdAt (почему нет в примерах)
+7) попутали old_reviewer и old_user

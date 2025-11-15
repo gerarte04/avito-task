@@ -31,7 +31,7 @@ func (r *TeamRepo) CreateTeam(ctx context.Context, team *domain.Team) (*domain.T
 
 	sql := `
 		INSERT INTO teams (name) VALUES ($1)
-		ON CONFLICT DO NOTHING
+		ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name
 		RETURNING (xmax <> 0)`
 
 	var wasExisting bool
@@ -47,7 +47,7 @@ func (r *TeamRepo) CreateTeam(ctx context.Context, team *domain.Team) (*domain.T
 		INSERT INTO users (id, name, team_name, is_active)
 		VALUES %s
 		ON CONFLICT (id) DO UPDATE
-		SET name = EXCLUDED.name, is_active = EXCLUDED.is_active`
+		SET name = EXCLUDED.name, team_name = EXCLUDED.team_name, is_active = EXCLUDED.is_active`
 
 	values := ""
 	args := []any{}

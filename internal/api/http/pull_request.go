@@ -63,7 +63,7 @@ func (h *PullRequestHandler) mergeHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	response.WriteResponse(w, http.StatusCreated, types.CreateMergePRResponse(res))
+	response.WriteResponse(w, http.StatusOK, types.CreateMergePRResponse(res))
 }
 
 func (h *PullRequestHandler) reassignHandler(w http.ResponseWriter, r *http.Request) {
@@ -79,5 +79,5 @@ func (h *PullRequestHandler) reassignHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	response.WriteResponse(w, http.StatusCreated, types.CreateReassignResponse(newRewID, pr))
+	response.WriteResponse(w, http.StatusOK, types.CreateReassignResponse(newRewID, pr))
 }

@@ -47,8 +47,9 @@ func (r *UserRepo) GetReview(ctx context.Context, id string) ([]*domain.PullRequ
 
 	sql := `
 		SELECT p.id, p.name, p.author_id, p.status
-		FROM reviewers r WHERE id = $1
-		JOIN pull_request p ON r.pr_id = p.id`
+		FROM reviewers r
+		JOIN pull_requests p ON r.pr_id = p.id
+		WHERE r.user_id = $1`
 
 	rows, err := r.pool.Query(ctx, sql, id)
 	if err != nil {

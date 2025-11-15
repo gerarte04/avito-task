@@ -9,7 +9,7 @@ services:
       postgres:
         condition: service_healthy
     healthcheck:
-      test: curl --fail -X GET http://avito-app:8080/api/health || exit 1
+      test: curl --fail -X GET http://avito-app:8080/health || exit 1
       interval: 15s
       timeout: 3s
       start_period: 3s
@@ -33,3 +33,15 @@ services:
     restart: unless-stopped
     tty: true
     stdin_open: true
+
+  tester:
+    build:
+      context: .
+      dockerfile: tests/Dockerfile
+    environment:
+      - HTTP_ADDRESS=avito-app:8080
+    profiles:
+      - test
+    depends_on:
+      avito-app:
+        condition: service_healthy

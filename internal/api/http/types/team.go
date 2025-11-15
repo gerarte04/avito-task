@@ -27,7 +27,7 @@ func CreateAddTeamRequest(r *http.Request) (*AddTeamRequest, error) {
 	}
 	
 	for _, u := range team.Members {
-		if len(u.ID) == 0 || len(u.TeamName) == 0 {
+		if len(u.ID) == 0 || len(u.Name) == 0 {
 			return nil, fmt.Errorf("%s: %w", op, ErrRequiredFieldMissing)
 		}
 	}

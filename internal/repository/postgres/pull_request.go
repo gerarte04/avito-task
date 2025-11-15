@@ -146,16 +146,27 @@ func (r *PullRequestRepo) Reassign(ctx context.Context, prID string, userID stri
 	if err != nil {
 		return "", nil, fmt.Errorf("%s: %w", op, err)
 	}
-
+	
 	defer func() { _ = tx.Rollback(ctx) }()
 
-	sql := `
-		SELECT id, name, author_id, status, created_at, COALESCE(merged_at, '0001-01-01'::date)
+	sql := "SELECT team_name FROM users WHERE id = $1"
+
+	var teamName string
+	if err = tx.QueryRow(ctx, sql, userID).Scan(&teamName); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return "", nil, fmt.Errorf("%s: %w", op, repository.ErrUserNotExists)
+		}
+
+		return "", nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	sql = `
+		SELECT id, name, author_id, status, created_at
 		FROM pull_requests WHERE id = $1`
 
 	var pr domain.PullRequest
 	if err = tx.QueryRow(ctx, sql, prID).Scan(
-		&pr.ID, &pr.Name, &pr.AuthorID, &pr.Status, &pr.CreatedAt, &pr.MergedAt,
+		&pr.ID, &pr.Name, &pr.AuthorID, &pr.Status, &pr.CreatedAt,
 	); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return "", nil, fmt.Errorf("%s: %w", op, repository.ErrPRNotExists)
@@ -168,17 +179,6 @@ func (r *PullRequestRepo) Reassign(ctx context.Context, prID string, userID stri
 		return "", nil, fmt.Errorf("%s: %w", op, repository.ErrPRMerged)
 	}
 
-	sql = "SELECT team_name FROM users WHERE id = $1"
-
-	var teamName string
-	if err = tx.QueryRow(ctx, sql, userID).Scan(&teamName); err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return "", nil, fmt.Errorf("%s: %w", op, repository.ErrUserNotExists)
-		}
-
-		return "", nil, fmt.Errorf("%s: %w", op, err)
-	}
-	
 	sql = `
 		WITH assigned_rews AS (
 			SELECT id FROM users
@@ -204,6 +204,23 @@ func (r *PullRequestRepo) Reassign(ctx context.Context, prID string, userID stri
 		}
 
 		return "", nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	sql = "SELECT user_id FROM reviewers WHERE pr_id = $1"
+
+	rows, err := tx.Query(ctx, sql, prID)
+	if err != nil {
+		return "", nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	for rows.Next() {
+		var rewId string
+
+		if err = rows.Scan(&rewId); err != nil {
+			return "", nil, fmt.Errorf("%s: %w", op, err)
+		}
+
+		pr.Reviewers = append(pr.Reviewers, rewId)
 	}
 
 	if err = tx.Commit(ctx); err != nil {
