@@ -41,6 +41,19 @@ linters:
           strict: true
     lll:
       line-length: 160
+    revive:
+      rules:
+        - name: var-naming
+          arguments:
+            - ["ID"] # AllowList
+            - ["VM"] # DenyList
+            - - skip-initialism-name-checks: true
+                upper-case-const: true
+                skip-package-name-checks: true
+                extra-bad-package-names:
+                  - helpers
+                  - models
+          
   exclusions:
     generated: lax
     presets:
