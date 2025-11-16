@@ -12,7 +12,7 @@ postgres:
   password: adminpass
 
 service:
-  swagger_fs_root: /app/swagger-ui-dist
+  swagger_fs_root: /app/swagger-ui-dist   # путь к файлам swagger ui
 
 paths:
   api: /
