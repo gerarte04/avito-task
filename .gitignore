@@ -30,3 +30,7 @@ go.work.sum
 # Editor/IDE
 # .idea/
 .vscode/
+
+report.txt
+results.bin
+plot.html

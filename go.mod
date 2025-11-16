@@ -5,6 +5,7 @@ go 1.25.1
 require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
 	github.com/KyleBanks/depth v1.2.1 // indirect
+	github.com/c2h5oh/datasize v0.0.0-20231215233829-aa82cc1e6500 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/doug-martin/goqu/v9 v9.19.0 // indirect
 	github.com/go-chi/chi/v5 v5.2.3 // indirect
@@ -15,6 +16,7 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.3.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/ilyakaznacheev/cleanenv v1.5.0 // indirect
+	github.com/influxdata/tdigest v0.0.1 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
 	github.com/jackc/pgx/v5 v5.7.6 // indirect
@@ -27,6 +29,8 @@ require (
 	github.com/swaggo/files v0.0.0-20220610200504-28940afbdbfe // indirect
 	github.com/swaggo/http-swagger v1.3.4 // indirect
 	github.com/swaggo/swag v1.8.1 // indirect
+	github.com/tsenart/go-tsz v0.0.0-20180814235614-0bd30b3df1c3 // indirect
+	github.com/tsenart/vegeta v12.7.0+incompatible // indirect
 	golang.org/x/crypto v0.37.0 // indirect
 	golang.org/x/net v0.25.0 // indirect
 	golang.org/x/sync v0.13.0 // indirect

@@ -16,7 +16,7 @@ WORKDIR /app
 
 COPY --from=builder /build/main /app/main
 COPY ./config/config.yaml /app/config.yaml
-COPY ./docs/ /app/docs/
+COPY ./docs/swagger-ui-dist /app/swagger-ui-dist
 
 EXPOSE 8080
 
