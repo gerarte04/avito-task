@@ -130,6 +130,10 @@ func (r *PullRequestRepo) GetByID(ctx context.Context, tx pgx.Tx, id string) (*d
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
+	if pr.MergedAt.IsZero() {
+		pr.MergedAt = nil
+	}
+
 	return &pr, nil
 }
 
@@ -191,11 +195,11 @@ func (r *PullRequestRepo) Reassign(ctx context.Context, tx pgx.Tx, prID string, 
 	
 	sql := `
 		UPDATE reviewers SET user_id = $1
-		WHERE pr_id = $2 AND user_id = $3
+		WHERE user_id = $2 AND pr_id = $3
 		RETURNING user_id`
 
 	if err := tx.QueryRow(
-		ctx, sql, newID, prID, prevID,
+		ctx, sql, newID, prevID, prID,
 	).Scan(&newID); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return fmt.Errorf("%s: %w", op, pgx.ErrNoRows)

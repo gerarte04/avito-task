@@ -9,8 +9,9 @@ CREATE TABLE users (
     is_active   bool            NOT NULL
 );
 
-CREATE TYPE pr_status AS ENUM ('OPEN', 'MERGED');
+CREATE INDEX users_team_name_idx ON users(team_name, id, is_active);
 
+CREATE TYPE pr_status AS ENUM ('OPEN', 'MERGED');
 CREATE TABLE pull_requests (
     id          varchar(100)    PRIMARY KEY,
     name        varchar(100)    NOT NULL,
@@ -24,3 +25,6 @@ CREATE TABLE reviewers (
     pr_id   varchar(100) NOT NULL REFERENCES pull_requests(id) ON DELETE CASCADE,
     user_id varchar(100) NOT NULL REFERENCES users(id) ON DELETE CASCADE
 );
+
+CREATE INDEX reviewers_pr_idx ON reviewers(pr_id);
+CREATE INDEX reviewers_user_pr_idx ON reviewers(user_id, pr_id);
