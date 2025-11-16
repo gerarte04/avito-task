@@ -22,6 +22,8 @@ services:
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=adminpass
       - PGDATA=/etc/.pgdata
+    ports:
+      - 5432:5432
     volumes:
       - /home/${USER}/.pgdata:/etc/.pgdata
       - ./migrations/init.sql:/docker-entrypoint-initdb.d/init.sql

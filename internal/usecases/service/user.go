@@ -9,11 +9,16 @@ import (
 
 type UserService struct {
 	userRepo repository.UserRepo
+	prRepo repository.PullRequestRepo
 }
 
-func NewUserService(repo repository.UserRepo) *UserService {
+func NewUserService(
+	userRepo repository.UserRepo,
+	prRepo repository.PullRequestRepo,
+) *UserService {
 	return &UserService{
-		userRepo: repo,
+		userRepo: userRepo,
+		prRepo: prRepo,
 	}
 }
 
@@ -31,7 +36,7 @@ func (s *UserService) SetIsActive(ctx context.Context, id string, isActive bool)
 func (s *UserService) GetReview(ctx context.Context, id string) ([]*domain.PullRequestShort, error) {
 	const op = "UserService.GetReview"
 
-	prs, err := s.userRepo.GetReview(ctx, id)
+	prs, err := s.prRepo.GetUserReviews(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}

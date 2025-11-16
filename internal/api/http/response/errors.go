@@ -2,6 +2,7 @@ package response
 
 import (
 	"avito-task/internal/repository"
+	"avito-task/internal/usecases"
 	"errors"
 	"log"
 	"net/http"
@@ -31,15 +32,15 @@ var (
 		ErrInternal: {http.StatusInternalServerError, "INTERNAL_ERROR"},
 		ErrNotFound: {http.StatusNotFound, "NOT_FOUND"},
 
-		repository.ErrTeamNameExists: {http.StatusBadRequest, "TEAM_EXISTS"},
 		repository.ErrTeamNotExists:  {http.StatusNotFound, "NOT_FOUND"},
 		repository.ErrUserNotExists:  {http.StatusNotFound, "NOT_FOUND"},
-
-		repository.ErrPRIDExists:  {http.StatusConflict, "PR_EXISTS"},
 		repository.ErrPRNotExists: {http.StatusNotFound, "NOT_FOUND"},
-		repository.ErrPRMerged:    {http.StatusConflict, "PR_MERGED"},
-		repository.ErrNotAssigned: {http.StatusConflict, "NOT_ASSIGNED"},
-		repository.ErrNoCandidate: {http.StatusConflict, "NO_CANDIDATE"},
+
+		usecases.ErrTeamNameExists: {http.StatusBadRequest, "TEAM_EXISTS"},
+		usecases.ErrPRIDExists:  {http.StatusConflict, "PR_EXISTS"},
+		usecases.ErrPRMerged:    {http.StatusConflict, "PR_MERGED"},
+		usecases.ErrNotAssigned: {http.StatusConflict, "NOT_ASSIGNED"},
+		usecases.ErrNoCandidate: {http.StatusConflict, "NO_CANDIDATE"},
 	}
 )
 

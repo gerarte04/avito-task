@@ -59,5 +59,17 @@ type AddTeamResponse struct {
 }
 
 func CreateAddTeamResponse(team *domain.Team) *AddTeamResponse {
+	for _, u := range team.Members {
+		u.TeamName = ""
+	}
+
 	return &AddTeamResponse{Team: team}
+}
+
+func CreateGetTeamResponse(team *domain.Team) *domain.Team {
+	for _, u := range team.Members {
+		u.TeamName = ""
+	}
+
+	return team
 }

@@ -36,9 +36,9 @@ func main() {
 	userRepo := repo.NewUserRepo(pool)
 	prRepo := repo.NewPullRequestRepo(pool)
 
-	teamSvc := service.NewTeamService(teamRepo)
-	userSvc := service.NewUserService(userRepo)
-	prSvc := service.NewPullRequestService(prRepo)
+	teamSvc := service.NewTeamService(pool, teamRepo, userRepo)
+	userSvc := service.NewUserService(userRepo, prRepo)
+	prSvc := service.NewPullRequestService(pool, prRepo, userRepo)
 
 	httpApp := httpapp.New(
 		cfg.HTTPCfg,

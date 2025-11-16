@@ -21,17 +21,15 @@ func NewUserRepo(pool *pgxpool.Pool) *UserRepo {
 	}
 }
 
-func (r *UserRepo) SetIsActive(ctx context.Context, id string, isActive bool) (*domain.User, error) {
-	const op = "UserRepo.SetIsActive"
+func (r *UserRepo) GetByID(ctx context.Context, tx pgx.Tx, id string) (*domain.User, error) {
+	const op = "UserRepo.GetByID"
 
-	sql := `
-		UPDATE users SET is_active = $1 WHERE id = $2
-		RETURNING id, name, team_name, is_active`
+	sql := "SELECT id, name, team_name, is_active FROM users WHERE id = $1"
 
-	row := r.pool.QueryRow(ctx, sql, isActive, id)
 	var user domain.User
-
-	if err := row.Scan(&user.ID, &user.Name, &user.TeamName, &user.IsActive); err != nil {
+	if err := tx.QueryRow(ctx, sql, id).Scan(
+		&user.ID, &user.Name, &user.TeamName, &user.IsActive,
+	); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, fmt.Errorf("%s: %w", op, repository.ErrUserNotExists)
 		}
@@ -42,31 +40,98 @@ func (r *UserRepo) SetIsActive(ctx context.Context, id string, isActive bool) (*
 	return &user, nil
 }
 
-func (r *UserRepo) GetReview(ctx context.Context, id string) ([]*domain.PullRequestShort, error) {
-	const op = "UserRepo.GetReview"
+func (r *UserRepo) GetByTeam(ctx context.Context, tx pgx.Tx, opts repository.GetByTeamOpts) ([]*domain.User, error) {
+	const op = "UserRepo.GetByTeam"
+	
+	sql := "SELECT id, name, team_name, is_active FROM users WHERE team_name = $1"
+	args := []any{opts.TeamName}
+	i := 2
+	
+	if opts.OnlyActive {
+		sql = fmt.Sprintf("%s AND is_active = TRUE", sql)
+	}
 
-	sql := `
-		SELECT p.id, p.name, p.author_id, p.status
-		FROM reviewers r
-		JOIN pull_requests p ON r.pr_id = p.id
-		WHERE r.user_id = $1`
+	for _, e := range opts.ExcludeIDs {
+		sql = fmt.Sprintf("%s AND id != $%d", sql, i)
+		args = append(args, e)
+		i++
+	}
 
-	rows, err := r.pool.Query(ctx, sql, id)
+	if opts.Limit > 0 {
+		sql = fmt.Sprintf("%s LIMIT $%d", sql, i)
+		args = append(args, opts.Limit)
+	}
+	
+	rows, err := tx.Query(ctx, sql, args...)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	var prs []*domain.PullRequestShort
+	defer rows.Close()
+	users := []*domain.User{}
 
 	for rows.Next() {
-		var pr domain.PullRequestShort
-
-		if err = rows.Scan(&pr.ID, &pr.Name, &pr.AuthorID, &pr.Status); err != nil {
+		var u domain.User
+		
+		if err = rows.Scan(&u.ID, &u.Name, &u.TeamName, &u.IsActive); err != nil {
 			return nil, fmt.Errorf("%s: %w", op, err)
 		}
-
-		prs = append(prs, &pr)
+		
+		users = append(users, &u)
 	}
 
-	return prs, nil
+	return users, nil
+}
+
+func (r *UserRepo) SetIsActive(ctx context.Context, id string, isActive bool) (*domain.User, error) {
+	const op = "UserRepo.SetIsActive"
+	
+	sql := `
+		UPDATE users SET is_active = $1 WHERE id = $2
+		RETURNING id, name, team_name, is_active`
+	
+	row := r.pool.QueryRow(ctx, sql, isActive, id)
+	var user domain.User
+	
+	if err := row.Scan(&user.ID, &user.Name, &user.TeamName, &user.IsActive); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, fmt.Errorf("%s: %w", op, repository.ErrUserNotExists)
+		}
+		
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+	
+	return &user, nil
+}
+
+func (r *UserRepo) UpsertUsers(ctx context.Context, tx pgx.Tx, users []*domain.User) error {
+	const op = "UserRepo.UpsertUsers"
+	
+	sql := `
+		INSERT INTO users (id, name, team_name, is_active)
+		VALUES %s
+		ON CONFLICT (id) DO UPDATE
+		SET name = EXCLUDED.name, team_name = EXCLUDED.team_name, is_active = EXCLUDED.is_active`
+
+	values := ""
+	args := []any{}
+
+	for i, u := range users {
+		comma := ","
+		if i == len(users) - 1 {
+			comma = ""
+		}
+
+		idx := i * 4 + 1
+		values += fmt.Sprintf("($%d, $%d, $%d, $%d)%s ", idx, idx + 1, idx + 2, idx + 3, comma)
+		args = append(args, u.ID, u.Name, u.TeamName, u.IsActive)
+	}
+
+	sql = fmt.Sprintf(sql, values)
+
+	if _, err := tx.Exec(ctx, sql, args...); err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	return nil
 }
