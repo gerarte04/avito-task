@@ -46,15 +46,15 @@ func (r *UserRepo) GetByTeam(ctx context.Context, tx pgx.Tx, opts repository.Get
 	sql := "SELECT id, name, team_name, is_active FROM users WHERE team_name = $1"
 	args := []any{opts.TeamName}
 	i := 2
-	
+
+	if opts.OnlyActive {
+		sql = fmt.Sprintf("%s AND is_active = TRUE", sql)
+	}
+
 	for _, e := range opts.ExcludeIDs {
 		sql = fmt.Sprintf("%s AND id != $%d", sql, i)
 		args = append(args, e)
 		i++
-	}
-
-	if opts.OnlyActive {
-		sql = fmt.Sprintf("%s AND is_active = TRUE", sql)
 	}
 
 	if opts.Limit > 0 {

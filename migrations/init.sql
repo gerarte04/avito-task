@@ -9,7 +9,7 @@ CREATE TABLE users (
     is_active   bool            NOT NULL
 );
 
-CREATE INDEX users_team_name_idx ON users(team_name, id, is_active);
+CREATE INDEX users_team_name_idx ON users(team_name, is_active);
 
 CREATE TYPE pr_status AS ENUM ('OPEN', 'MERGED');
 CREATE TABLE pull_requests (
