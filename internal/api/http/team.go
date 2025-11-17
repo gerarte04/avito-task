@@ -31,6 +31,7 @@ func (h *TeamHandler) WithTeamHandlers() handlers.RouterOption {
 		r.Post(h.pathCfg.AddTeam, h.addHandler)
 		r.Get(h.pathCfg.GetTeam, h.getHandler)
 		r.Get(h.pathCfg.GetTeamStats, h.getStatsHandler)
+		r.Post(h.pathCfg.DeactivateTeam, h.deactivateHandler)
 	}
 }
 
@@ -63,7 +64,7 @@ func (h *TeamHandler) getHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response.WriteResponse(w, http.StatusOK, res)
+	response.WriteResponse(w, http.StatusOK, types.CreateGetTeamResponse(res))
 }
 
 func (h *TeamHandler) getStatsHandler(w http.ResponseWriter, r *http.Request) {
@@ -80,4 +81,20 @@ func (h *TeamHandler) getStatsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response.WriteResponse(w, http.StatusOK, res)
+}
+
+func (h *TeamHandler) deactivateHandler(w http.ResponseWriter, r *http.Request) {
+	req, err := types.CreateDeactivateTeamRequest(r)
+	if err != nil {
+		response.ProcessCreatingRequestError(w, err)
+		return
+	}
+
+	res, err := h.teamSvc.DeactivateTeam(r.Context(), req.Name)
+	if err != nil {
+		response.ProcessError(w, err)
+		return
+	}
+
+	response.WriteResponse(w, http.StatusOK, types.CreateDeactivateTeamResponse(req.Name, res))
 }

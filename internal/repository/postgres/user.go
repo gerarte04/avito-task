@@ -104,6 +104,34 @@ func (r *UserRepo) SetIsActive(ctx context.Context, id string, isActive bool) (*
 	return &user, nil
 }
 
+func (r *UserRepo) DeactivateTeam(ctx context.Context, tx pgx.Tx, teamName string) ([]*domain.User, error) {
+	const op = "UserRepo.DeactivateTeam"
+
+	sql := `
+		UPDATE users SET is_active = FALSE WHERE team_name = $1
+		RETURNING id, name, team_name, is_active`
+
+	rows, err := tx.Query(ctx, sql, teamName)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	defer rows.Close()
+	users := []*domain.User{}
+
+	for rows.Next() {
+		var u domain.User
+
+		if err = rows.Scan(&u.ID, &u.Name, &u.TeamName, &u.IsActive); err != nil {
+			return nil, fmt.Errorf("%s: %w", op, err)
+		}
+
+		users = append(users, &u)
+	}
+
+	return users, nil
+}
+
 func (r *UserRepo) UpsertUsers(ctx context.Context, tx pgx.Tx, users []*domain.User) error {
 	const op = "UserRepo.UpsertUsers"
 	

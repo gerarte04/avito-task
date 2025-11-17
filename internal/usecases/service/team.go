@@ -134,3 +134,32 @@ func (s *TeamService) GetTeamStats(ctx context.Context, name string) (*domain.Te
 
 	return &stats, nil
 }
+
+func (s *TeamService) DeactivateTeam(ctx context.Context, name string) ([]*domain.User, error) {
+	const op = "TeamService.DeactivateTeam"
+
+	tx, err := s.pool.BeginTx(ctx, pgx.TxOptions{
+		IsoLevel: pgx.RepeatableRead,
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("%s: failed to begin tx: %w", op, err)
+	}
+
+	defer func() { _ = tx.Rollback(ctx) }()
+
+	if _, err = s.teamRepo.GetByName(ctx, tx, name); err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	users, err := s.userRepo.DeactivateTeam(ctx, tx, name)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	if err = tx.Commit(ctx); err != nil {
+		return nil, fmt.Errorf("%s: failed to commit tx: %w", op, err)
+	}
+
+	return users, nil
+}

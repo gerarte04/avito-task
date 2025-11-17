@@ -223,7 +223,7 @@ paths:
                         user_id:
                           type: string
                         reviews_count:
-                          type: int
+                          type: integer
                   pr_stats:
                     type: array
                     items:
@@ -232,7 +232,26 @@ paths:
                         pull_request_id:
                           type: string
                         reviewers_count:
-                          type: int
+                          type: integer
+        '404':
+          description: Команда не найдена
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+  
+  /team/deactivate:
+    post:
+      tags: [Teams]
+      summary: Деактивировать всех участников команды
+      parameters:
+        - $ref: '#/components/parameters/TeamNameQuery'
+      responses:
+        '200':
+          description: Команда
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
         '404':
           description: Команда не найдена
           content:

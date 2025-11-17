@@ -19,6 +19,7 @@ paths:
   add_team: /team/add
   get_team: /team/get
   get_team_stats: /team/stats
+  deactivate_team: /team/deactivate
   set_is_active_user: /users/setIsActive
   get_review_user: /users/getReview
   create_pr: /pullRequest/create
