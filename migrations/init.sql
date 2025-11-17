@@ -21,6 +21,8 @@ CREATE TABLE pull_requests (
     merged_at   timestamp
 );
 
+CREATE INDEX prs_status_id_idx ON pull_requests(status, id);
+
 CREATE TABLE reviewers (
     pr_id   varchar(100) NOT NULL REFERENCES pull_requests(id) ON DELETE CASCADE,
     user_id varchar(100) NOT NULL REFERENCES users(id) ON DELETE CASCADE

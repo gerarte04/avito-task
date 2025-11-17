@@ -7,3 +7,8 @@ type User struct {
 
 	TeamName string `json:"team_name,omitempty"`
 }
+
+type UserStats struct {
+	ID           string `json:"user_id"`
+	ReviewsCount int    `json:"open_reviews_count"`
+}

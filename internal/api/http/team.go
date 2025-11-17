@@ -30,6 +30,7 @@ func (h *TeamHandler) WithTeamHandlers() handlers.RouterOption {
 	return func (r chi.Router) {
 		r.Post(h.pathCfg.AddTeam, h.addHandler)
 		r.Get(h.pathCfg.GetTeam, h.getHandler)
+		r.Get(h.pathCfg.GetTeamStats, h.getStatsHandler)
 	}
 }
 
@@ -57,6 +58,22 @@ func (h *TeamHandler) getHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	res, err := h.teamSvc.GetTeam(r.Context(), req.Name)
+	if err != nil {
+		response.ProcessError(w, err)
+		return
+	}
+
+	response.WriteResponse(w, http.StatusOK, res)
+}
+
+func (h *TeamHandler) getStatsHandler(w http.ResponseWriter, r *http.Request) {
+	req, err := types.CreateGetTeamStatsRequest(r)
+	if err != nil {
+		response.ProcessCreatingRequestError(w, err)
+		return
+	}
+
+	res, err := h.teamSvc.GetTeamStats(r.Context(), req.Name)
 	if err != nil {
 		response.ProcessError(w, err)
 		return

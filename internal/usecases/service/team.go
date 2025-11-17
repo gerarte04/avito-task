@@ -15,17 +15,20 @@ type TeamService struct {
 	pool *pgxpool.Pool
 	teamRepo repository.TeamRepo
 	userRepo repository.UserRepo
+	prRepo repository.PullRequestRepo
 }
 
 func NewTeamService(
 	pool *pgxpool.Pool,
 	teamRepo repository.TeamRepo,
 	userRepo repository.UserRepo,
+	prRepo repository.PullRequestRepo,
 ) *TeamService {
 	return &TeamService{
 		pool: pool,
 		teamRepo: teamRepo,
 		userRepo: userRepo,
+		prRepo: prRepo,
 	}
 }
 
@@ -95,4 +98,39 @@ func (s *TeamService) GetTeam(ctx context.Context, name string) (*domain.Team, e
 	}
 
 	return team, nil
+}
+
+func (s *TeamService) GetTeamStats(ctx context.Context, name string) (*domain.TeamStats, error) {
+	const op = "TeamService.GetTeamStats"
+
+	tx, err := s.pool.BeginTx(ctx, pgx.TxOptions{
+		IsoLevel: pgx.RepeatableRead,
+		AccessMode: pgx.ReadOnly,
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("%s: failed to begin tx: %w", op, err)
+	}
+
+	defer func() { _ = tx.Rollback(ctx) }()
+
+	if _, err = s.teamRepo.GetByName(ctx, tx, name); err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	stats := domain.TeamStats{Name: name}
+
+	if stats.Users, err = s.prRepo.GetUserReviewsCounts(ctx, tx, name); err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	if stats.PRs, err = s.prRepo.GetPRReviewersCounts(ctx, tx, name); err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	if err = tx.Commit(ctx); err != nil {
+		return nil, fmt.Errorf("%s: failed to commit tx: %w", op, err)
+	}
+
+	return &stats, nil
 }

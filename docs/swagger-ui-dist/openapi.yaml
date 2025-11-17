@@ -199,6 +199,46 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/ErrorResponse' }
 
+  /team/stats:
+    get:
+      tags: [Teams]
+      summary: Получить статистику по команде (кол-во ревью пользователей, кол-во ревьюеров PR)
+      parameters:
+        - $ref: '#/components/parameters/TeamNameQuery'
+      responses:
+        '200':
+          description: Статистика
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  team_name:
+                    type: string
+                  user_stats:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        user_id:
+                          type: string
+                        reviews_count:
+                          type: int
+                  pr_stats:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        pull_request_id:
+                          type: string
+                        reviewers_count:
+                          type: int
+        '404':
+          description: Команда не найдена
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
   /users/setIsActive:
     post:
       tags: [Users]
@@ -338,10 +378,10 @@ paths:
           application/json:
             schema:
               type: object
-              required: [ pull_request_id, old_user_id ]
+              required: [ pull_request_id, old_reviewer_id ]
               properties:
                 pull_request_id: { type: string }
-                old_user_id: { type: string }
+                old_reviewer_id: { type: string }
             example:
               pull_request_id: pr-1001
               old_reviewer_id: u2

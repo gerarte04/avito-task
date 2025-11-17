@@ -10,6 +10,7 @@ type PathConfig struct {
 
 	AddTeam string `yaml:"add_team" env-required:"true"`
 	GetTeam string `yaml:"get_team" env-required:"true"`
+	GetTeamStats string `yaml:"get_team_stats" env-required:"true"`
 
 	SetIsActiveUser string `yaml:"set_is_active_user" env-required:"true"`
 	GetReviewUser   string `yaml:"get_review_user" env-required:"true"`

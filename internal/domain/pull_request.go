@@ -27,3 +27,9 @@ type PullRequestShort struct {
 	AuthorID string   `json:"author_id" db:"author_id"`
 	Status   PRStatus `json:"status" db:"status"`
 }
+
+type PullRequestStats struct {
+	ID             string   `json:"pull_request_id"`
+	Status         PRStatus `json:"status"`
+	ReviewersCount int      `json:"reviewers_count"`
+}

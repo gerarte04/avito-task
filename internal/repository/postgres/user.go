@@ -58,10 +58,10 @@ func (r *UserRepo) GetByTeam(ctx context.Context, tx pgx.Tx, opts repository.Get
 	}
 
 	if opts.Limit > 0 {
-		sql = fmt.Sprintf("%s LIMIT $%d", sql, i)
+		sql = fmt.Sprintf("%s ORDER BY RANDOM() LIMIT $%d", sql, i)
 		args = append(args, opts.Limit)
 	}
-	
+
 	rows, err := tx.Query(ctx, sql, args...)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)

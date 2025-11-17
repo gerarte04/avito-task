@@ -36,7 +36,7 @@ func main() {
 	userRepo := repo.NewUserRepo(pool)
 	prRepo := repo.NewPullRequestRepo(pool)
 
-	teamSvc := service.NewTeamService(pool, teamRepo, userRepo)
+	teamSvc := service.NewTeamService(pool, teamRepo, userRepo, prRepo)
 	userSvc := service.NewUserService(userRepo, prRepo)
 	prSvc := service.NewPullRequestService(pool, prRepo, userRepo)
 

@@ -210,3 +210,71 @@ func (r *PullRequestRepo) Reassign(ctx context.Context, tx pgx.Tx, prID string, 
 
 	return nil
 }
+
+// Stats --------------------------------------------------------
+
+func (r *PullRequestRepo) GetUserReviewsCounts(ctx context.Context, tx pgx.Tx, teamName string) ([]*domain.UserStats, error) {
+	const op = "PullRequestRepo.GetUserReviewsCounts"
+
+	sql := `
+		SELECT u.id, COUNT(r.user_id) FROM users u
+		LEFT JOIN reviewers r ON u.id = r.user_id
+		INNER JOIN pull_requests p ON r.pr_id = p.id AND p.status = 'OPEN'
+		WHERE u.team_name = $1
+		GROUP BY u.id`
+
+	rows, err := tx.Query(ctx, sql, teamName)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	defer rows.Close()
+	stats := []*domain.UserStats{}
+
+	for rows.Next() {
+		var st domain.UserStats
+
+		if err = rows.Scan(&st.ID, &st.ReviewsCount); err != nil {
+			return nil, fmt.Errorf("%s: %w", op, err)
+		}
+
+		stats = append(stats, &st)
+	}
+
+	return stats, nil
+}
+
+func (r *PullRequestRepo) GetPRReviewersCounts(ctx context.Context, tx pgx.Tx, teamName string) ([]*domain.PullRequestStats, error) {
+	const op = "PullRequestRepo.GetPRReviewersCounts"
+
+	sql := `
+		WITH team_prs AS (
+			SELECT p.id, p.status FROM pull_requests p
+			JOIN users u ON p.author_id = u.id
+			WHERE u.team_name = $1
+		)
+		SELECT p.id, p.status, COUNT(r.pr_id) FROM team_prs p
+		LEFT JOIN reviewers r ON p.id = r.pr_id
+		GROUP BY p.id, p.status
+		ORDER BY p.status`
+
+	rows, err := tx.Query(ctx, sql, teamName)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	defer rows.Close()
+	stats := []*domain.PullRequestStats{}
+
+	for rows.Next() {
+		var st domain.PullRequestStats
+
+		if err = rows.Scan(&st.ID, &st.Status, &st.ReviewersCount); err != nil {
+			return nil, fmt.Errorf("%s: %w", op, err)
+		}
+
+		stats = append(stats, &st)
+	}
+
+	return stats, nil
+}

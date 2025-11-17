@@ -52,6 +52,23 @@ func CreateGetTeamRequest(r *http.Request) (*GetTeamRequest, error) {
 	return &req, nil
 }
 
+type GetTeamStatsRequest struct {
+	Name string
+}
+
+func CreateGetTeamStatsRequest(r *http.Request) (*GetTeamStatsRequest, error) {
+	const op = "CreateGetTeamStatsRequest"
+
+	var req GetTeamStatsRequest
+	req.Name = r.URL.Query().Get("team_name")
+
+	if len(req.Name) == 0 {
+		return nil, fmt.Errorf("%s: %w", op, ErrRequiredFieldMissing)
+	}
+
+	return &req, nil
+}
+
 // Responses -------------------------------------------------
 
 type AddTeamResponse struct {

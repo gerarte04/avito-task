@@ -16,4 +16,7 @@ type PullRequestRepo interface {
 	CreatePullRequest(ctx context.Context, tx pgx.Tx, pr *domain.PullRequest) (*domain.PullRequest, error)
 	Merge(ctx context.Context, tx pgx.Tx, id string) (*domain.PullRequest, error)
 	Reassign(ctx context.Context, tx pgx.Tx, prID string, prevID string, newID string) error
+
+	GetUserReviewsCounts(ctx context.Context, tx pgx.Tx, teamName string) ([]*domain.UserStats, error)
+	GetPRReviewersCounts(ctx context.Context, tx pgx.Tx, teamName string) ([]*domain.PullRequestStats, error)
 }
