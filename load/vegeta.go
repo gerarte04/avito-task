@@ -79,7 +79,7 @@ var (
 				Name: teamName,
 			}
 
-			for i := Rnd(MaxUsers / 10); i < MaxUsers; i += Rnd(MaxUsers/5) + 1 {
+			for i := 0; i < MaxUsers; i++ {
 				s.Members = append(s.Members, &User{
 					ID:       fmt.Sprintf("user-%d", i),
 					Name:     "aaa",

@@ -78,21 +78,17 @@ make stop_services
 ### Отчет Vegeta
 
 ```
-Requests      [total, rate, throughput]  600, 5.01, 1.89
-Duration      [total, attack, wait]      1m59.800580723s, 1m59.80019579s, 384.933µs
-Latencies     [mean, 50, 95, 99, max]    2.031531ms, 1.445465ms, 5.310366ms, 6.522122ms, 9.169656ms
-Bytes In      [total, mean]              101616, 169.36
-Bytes Out     [total, mean]              90868, 151.45
-Status Codes  [code:count]               200:148  201:78  400:193  404:150  409:31  
+Requests      [total, rate, throughput]  600, 5.01, 2.50
+Duration      [total, attack, wait]      1m59.802293785s, 1m59.800412712s, 1.881073ms
+Latencies     [mean, 50, 95, 99, max]    3.009492ms, 2.023012ms, 5.147658ms, 19.288809ms, 61.236619ms
+Bytes In      [total, mean]              309700, 516.17
+Bytes Out     [total, mean]              1190489, 1984.15
+Status Codes  [code:count]               200:181  201:119  400:190  404:24  409:86  
 Error Set:
 404 Not Found
 400 Bad Request
 409 Conflict
 ```
-
-### График запросов (зеленый — коды 2XX, красный — коды 4XX)
-
-![scale=0.5](docs/plot.png)
 
 ## Вопросы и уточнения по условиям/реализации
 
